@@ -14,6 +14,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     @IBOutlet weak var mapa: MKMapView!
     var gerenciadorLocal = CLLocationManager()
     
+    @IBOutlet weak var lblVelocidade: UILabel!
+    @IBOutlet weak var lblLatitude: UILabel!
+    @IBOutlet weak var lblLongitude: UILabel!
+    @IBOutlet weak var lblEndereco: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
        
@@ -22,42 +27,33 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         gerenciadorLocal.requestWhenInUseAuthorization()
         gerenciadorLocal.startUpdatingLocation()
         
-        
-        
-        
-        /*
-        
-        let latitude:CLLocationDegrees = -23.587489//-21.818355
-        let longitude:CLLocationDegrees = -46.657667//-48.159924
-        
-        let localizacao: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
-        
-        let deltaLatitude : CLLocationDegrees = 0.01
-        let deltaLongitude : CLLocationDegrees = 0.01
-        
-        let areaVisualizacao: MKCoordinateSpan = MKCoordinateSpanMake(deltaLatitude, deltaLongitude)
-        
-        let regiao: MKCoordinateRegion = MKCoordinateRegionMake(localizacao, areaVisualizacao)
-        
-        mapa.setRegion(regiao, animated: true)
-        
-        let anotacao = MKPointAnnotation()
-        
-        //configurar
-        
-        anotacao.coordinate = localizacao
-        anotacao.title = "Parque do ibirapuera"
-        anotacao.subtitle = "Maior parque da america latina"
-        mapa.addAnnotation(anotacao)
-        */
     }
 
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        
+        if status != .authorizedWhenInUse {
+            let alertController = UIAlertController(title: "Permissâo de localização", message: "Necessario permissâo para acesso à sua localização, por favor habilite", preferredStyle: .alert)
+            let acaoConfig = UIAlertAction(title: "Abir Configurações", style: .default, handler: { (alertaConfiguracoes) in
+                if let config = NSURL(string:UIApplicationOpenSettingsURLString){
+                    UIApplication.shared.open(config as URL)
+                }
+            })
+            let acaoCancelar = UIAlertAction(title: "Cancelar", style: .default, handler: nil)
+            alertController.addAction(acaoConfig)
+            alertController.addAction(acaoCancelar)
+            
+            present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         let localizacaoUsuario: CLLocation = locations.last!
         
-        let latitude:CLLocationDegrees = -23.587489//-21.818355
-        let longitude:CLLocationDegrees = -46.657667//-48.159924
+        let latitude:CLLocationDegrees = localizacaoUsuario.coordinate.latitude
+        let longitude:CLLocationDegrees = localizacaoUsuario.coordinate.longitude
         
         let localizacao: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
         
@@ -71,11 +67,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         mapa.setRegion(regiao, animated: true)
 
     }
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
+   
 }
 
