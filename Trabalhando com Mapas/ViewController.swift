@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate{
-
+    
     @IBOutlet weak var mapa: MKMapView!
     var gerenciadorLocal = CLLocationManager()
     
@@ -21,14 +21,14 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        
         gerenciadorLocal.delegate = self
         gerenciadorLocal.desiredAccuracy = kCLLocationAccuracyBest
         gerenciadorLocal.requestWhenInUseAuthorization()
         gerenciadorLocal.startUpdatingLocation()
         
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
         if status != .authorizedWhenInUse {
@@ -55,6 +55,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let latitude:CLLocationDegrees = localizacaoUsuario.coordinate.latitude
         let longitude:CLLocationDegrees = localizacaoUsuario.coordinate.longitude
         
+        lblLongitude.text = String(longitude)
+        lblLatitude.text = String(latitude)
+        lblVelocidade.text = String(localizacaoUsuario.speed * 3.6)
+        
         let localizacao: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
         
         let deltaLatitude : CLLocationDegrees = 0.01
@@ -65,8 +69,84 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let regiao: MKCoordinateRegion = MKCoordinateRegionMake(localizacao, areaVisualizacao)
         
         mapa.setRegion(regiao, animated: true)
-
+        
+        CLGeocoder().reverseGeocodeLocation(localizacaoUsuario) { (detalhesLocal, erro) in
+            
+            if erro == nil {
+                
+                
+                if let dadosLocal = detalhesLocal?.first {
+                    
+                    var address = ""
+                    if dadosLocal.thoroughfare != nil {
+                        address = dadosLocal.thoroughfare!
+                    }
+                    
+                    var numberAddress = ""
+                    
+                    if dadosLocal.subThoroughfare != nil {
+                        numberAddress = dadosLocal.subThoroughfare!
+                    }
+                    
+                    var city = ""
+                    
+                    if dadosLocal.locality != nil {
+                        city = dadosLocal.locality!
+                    }
+                    
+                    var neighborhood = ""
+                    
+                    if dadosLocal.subLocality != nil {
+                        neighborhood = dadosLocal.subLocality!
+                    }
+                    
+                    var postalCode = ""
+                    
+                    if dadosLocal.postalCode != nil {
+                        postalCode = dadosLocal.postalCode!
+                    }
+                    
+                    var country = ""
+                    
+                    if dadosLocal.country != nil {
+                        country = dadosLocal.country!
+                    }
+                    
+                    var uf = ""
+                    
+                    if dadosLocal.administrativeArea != nil {
+                        uf = dadosLocal.administrativeArea!
+                    }
+                    
+                    var subAdmistrativeArea = ""
+                    
+                    if dadosLocal.subAdministrativeArea != nil {
+                        subAdmistrativeArea = dadosLocal.subAdministrativeArea!
+                    }
+                    
+                    self.lblEndereco.text = address + ", "  + numberAddress + " - " + neighborhood + " - " + city
+                    
+                    print(
+                        "\n / thoroughtfare: " + address +
+                        "\n / subThoroughtfare: " + numberAddress +
+                        "\n / locality: " + city +
+                        "\n / subLocality: " + neighborhood +
+                        "\n / postalCode: " + postalCode +
+                        "\n / country: " + country +
+                        "\n / admistrativeArea: " + uf +
+                        "\n / subAdministrativearea: " + subAdmistrativeArea
+                    )
+                    
+                    
+                }
+               
+                
+            }else {
+                print(erro!)
+                
+            }
+            
+        }
+        
     }
-   
 }
-
